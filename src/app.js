@@ -13,6 +13,9 @@ import './config/passportGoogle.js';
 
 import authRouter from './routes/authRouter.js';
 import usersRouter from './routes/usersRouter.js';
+import courseRoutes from './routes/course';
+import attendanceRoutes from './routes/attendance';
+import profileRouter from './routes/profileRouter.js';
 
 const app = express();
 
@@ -26,11 +29,11 @@ app.use(cookieParser());
 app.use(passport.initialize());
 
 // Routes
-app.use('/api/auth', authRouter);
-
-
-app.use('/api/users', usersRouter);
-// app.use('/api/profile', profileRouter);
+app.use('/auth', authRouter);
+app.use('/courses', courseRoutes);
+app.use('/attendance', attendanceRoutes);
+app.use('/users', usersRouter);
+app.use('/api/profile', profileRouter);
 
 app.get('/health', (req, res) => {
   res.json({

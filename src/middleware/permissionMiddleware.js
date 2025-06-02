@@ -1,10 +1,10 @@
-import { prisma } from '../config/prismaClient';
+import { prisma } from '../config/prismaClient.js';
 
 /**
  * Middleware to check if a user has the required permissions
- * @param {string|string[]} requiredPermissions - Permission(s) required to access the endpoint
+ * @param {string|string[]} role - Permission(s) required to access the endpoint
  */
-export function checkPermission(requiredPermissions) {
+export function checkPermission(role) {
   return async (req, res, next) => {
     try {
       // If no user attached to request, they're not authenticated
@@ -15,48 +15,21 @@ export function checkPermission(requiredPermissions) {
       // Get user with role and permissions
       const user = await prisma.user.findUnique({
         where: { id: req.user.id },
-        include: {
-          role: {
-            include: {
-              permissions: true,
-            },
-          },
-        },
       });
 
       if (!user) {
         return res.status(401).json({ error: 'User not found' });
       }
 
-      // Extract permission names from user's role
-      const userPermissions = user.role.permissions.map((p) => p.name);
-
       // Check if user has all required permissions
-      const permissionsArray = Array.isArray(requiredPermissions)
-        ? requiredPermissions
-        : [requiredPermissions];
+      const rolesArray = Array.isArray(role) ? role : [role];
 
-      const hasPermission = permissionsArray.every((permission) =>
-        userPermissions.includes(permission)
-      );
-
-      // Allow access if user has permission
-      if (hasPermission) {
-        return next();
+      const hasPermission = rolesArray.includes(user.role.toLowerCase());
+      if (!hasPermission) {
+        return res.status(403).json({ error: 'Insufficient permissions' });
       }
 
-      // Special case: check if user is trying to access their own profile
-      if (req.params.id && req.params.id === req.user.id) {
-        // For profile-specific permissions
-        if (
-          permissionsArray.includes('view:profile') ||
-          permissionsArray.includes('update:profile')
-        ) {
-          return next();
-        }
-      }
-
-      return res.status(403).json({ error: 'Insufficient permissions' });
+      return next();
     } catch (error) {
       console.error('Permission check error:', error);
       return res.status(500).json({ error: 'Internal server error' });

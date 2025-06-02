@@ -1,5 +1,6 @@
 import cron from 'node-cron';
-import { PrismaClient } from '@prisma/client';
+import pkg from '@prisma/client';
+const { PrismaClient } = pkg;
 const prisma = new PrismaClient();
 
 // Run daily at midnight
@@ -8,17 +9,17 @@ cron.schedule('0 0 * * *', async () => {
     const now = new Date();
 
     // Mark completed enrollments
-    await prisma.enrollment.updateMany({
-      where: {
-        status: 'ACTIVE',
-        course: {
-          endDate: { lte: now },
-        },
-      },
-      data: { status: 'COMPLETED' },
-    });
+    // await prisma.enrollment.updateMany({
+    //   where: {
+    //     status: 'ACTIVE',
+    //     course: {
+    //       endDate: { lte: now },
+    //     },
+    //   },
+    //   data: { status: 'COMPLETED' },
+    // });
 
-    console.log('Updated completed enrollments');
+    // console.log('Updated completed enrollments');
   } catch (error) {
     console.error('Cron job error:', error);
   }

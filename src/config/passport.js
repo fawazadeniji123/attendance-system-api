@@ -16,14 +16,19 @@ const localStrategy = new LocalStrategy(
       if (!user)
         return done(null, false, { error: 'Incorrect email or password.' });
 
-      const isPasswordValid = await bcrypt.compare(
-        password,
-        user.password.hashed
-      );
+      if (!user.isApproved)
+        return done(null, false, { error: 'User is not approved.' });
+
+      const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid)
         return done(null, false, { error: 'Incorrect email or password.' });
 
-      user = await findUserById(user.id);
+      // Remove password from user object before returning
+      user = {
+        ...user,
+        password: undefined,
+      };
+
       return done(null, user);
     } catch (error) {
       return done(error);

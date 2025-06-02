@@ -7,6 +7,7 @@ import {
   httpUpdateUser,
   httpDeleteUser,
   httpUploadAvatar,
+  httpApproveUser,
 } from '../controllers/usersController.js';
 
 const usersRouter = express.Router();
@@ -14,36 +15,47 @@ const usersRouter = express.Router();
 usersRouter.get(
   '/',
   passport.authenticate('jwt', { session: false }),
-  checkPermission('list:users'),
+  checkPermission(['admin', 'lecturer']),
   httpGetAllUsers
 );
 
 usersRouter.get(
   '/:id',
   passport.authenticate('jwt', { session: false }),
-  checkPermission('view:profile'),
   httpGetUserById
 );
 
 usersRouter.put(
   '/:id',
   passport.authenticate('jwt', { session: false }),
-  checkPermission('edit:users'),
   httpUpdateUser
 );
 
 usersRouter.delete(
   '/:id',
   passport.authenticate('jwt', { session: false }),
-  checkPermission('delete:users'),
+  checkPermission('admin'),
   httpDeleteUser
 );
 
 usersRouter.post(
   '/:id/upload-avatar',
   passport.authenticate('jwt', { session: false }),
-  checkPermission('edit:users'),
   httpUploadAvatar
+);
+
+usersRouter.put(
+  '/:id/approve',
+  passport.authenticate('jwt', { session: false }),
+  checkPermission('admin'),
+  httpApproveUser
+);
+
+usersRouter.put(
+  '/:id/reject',
+  passport.authenticate('jwt', { session: false }),
+  checkPermission('admin'),
+  httpUpdateUser
 );
 
 export default usersRouter;

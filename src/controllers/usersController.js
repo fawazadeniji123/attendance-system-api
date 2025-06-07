@@ -89,7 +89,7 @@ export const httpUploadAvatar = [
       const uploadedImage = await cloudinary.uploader.upload(
         `data:image/jpeg;base64,${profilePicture}`,
         {
-          upload_preset: 'skillsprint',
+          upload_preset: 'attendance-system',
         }
       );
 
@@ -114,7 +114,7 @@ export async function httpApproveUser(req, res) {
   try {
     const user = await approveUser(id);
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ message: 'User not found' });
     }
 
     res.json({

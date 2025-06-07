@@ -201,3 +201,17 @@ export async function rejectUser(id) {
     },
   });
 }
+
+export async function getRecentUsers() {
+  return await prisma.user.findMany({
+    orderBy: { createdAt: 'desc' },
+    take: 10,
+    omit: {
+      password: true,
+    },
+    include: {
+      student: true,
+      lecturer: true,
+    },
+  });
+}

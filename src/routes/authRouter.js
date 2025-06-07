@@ -34,7 +34,7 @@ authRouter.post(
 );
 
 
-authRouter.post('/token', refreshAccessToken);
+authRouter.post('/refresh', refreshAccessToken);
 
 authRouter.post('/sign-out', signOut);
 

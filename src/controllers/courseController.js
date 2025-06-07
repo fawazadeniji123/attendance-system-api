@@ -1,135 +1,142 @@
 import {
   getAllCourses,
   getCourseById,
+  getCoursesByLecturerId,
+  getAvailableCoursesByStudentId,
   createCourse,
   updateCourse,
   deleteCourse,
   enrollStudent,
   getCourseEnrollments,
 } from '../models/courseModel.js';
-import cloudinary from '../config/cloudinary.js';
-import upload from '../config/multer.js';
+import { findUserById } from '../models/authModel.js';
 
-/**
- * Get all courses
- */
 export async function httpGetAllCourses(req, res) {
   try {
     const courses = await getAllCourses();
     return res.status(200).json(courses);
   } catch (error) {
     console.error('Error getting courses:', error);
-    return res.status(500).json({ error: 'Failed to retrieve courses' });
+    return res.status(500).json({ message: 'Failed to retrieve courses' });
   }
 }
 
-/**
- * Create a new course
- */
+export async function httpGetCourseById(req, res) {
+  try {
+    const { id } = req.params;
+    const course = await getCourseById(id);
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+    return res.status(200).json(course);
+  } catch (error) {
+    console.error('Error getting course by ID:', error);
+    return res.status(500).json({ message: 'Failed to retrieve course' });
+  }
+}
+
+export async function httpGetCoursesByLecturerId(req, res) {
+  try {
+    const { lecturerId } = req.params;
+    const courses = await getCoursesByLecturerId(lecturerId);
+    if (!courses) {
+      return res
+        .status(404)
+        .json({ message: 'No courses found for this lecturer' });
+    }
+    return res.status(200).json(courses);
+  } catch (error) {
+    console.error('Error getting courses by lecturer ID:', error);
+    return res.status(500).json({ message: 'Failed to retrieve courses' });
+  }
+}
+
+export async function httpGetAvailableCoursesByStudentId(req, res) {
+  try {
+    const { studentId } = req.params;
+    const courses = await getAvailableCoursesByStudentId(studentId);
+    if (!courses) {
+      return res
+        .status(404)
+        .json({ message: 'No available courses found for this student' });
+    }
+    return res.status(200).json(courses);
+  } catch (error) {
+    console.error('Error getting available courses by student ID:', error);
+    return res.status(500).json({ message: 'Failed to retrieve courses' });
+  }
+}
+
 export async function httpCreateCourse(req, res) {
   try {
-    const {
-      title,
-      description,
-      level,
-      instructorId,
-    } = req.body;
+    const { title, code, description, lecturerId } = req.body;
 
-    if (!title) {
-      return res.status(400).json({ error: 'Course title is required' });
-    }
-
-    if (!req.user) {
-      return res.status(403).json({ error: 'User not available' });
-    }
-
-    if (req.user.role.name !== 'ADMIN') {
-      return res.status(403).json({ error: 'Only admins can create courses' });
+    if (!title && !code) {
+      return res
+        .status(400)
+        .json({ message: 'Course title and code are required' });
     }
 
     const courseData = {
       title,
+      code,
       description,
-      level,
-      adminId: req.user.id, // The authenticated user is the admin
-      instructorId,
+      lecturerId,
     };
 
     const newCourse = await createCourse(courseData);
     return res.status(201).json(newCourse);
   } catch (error) {
     console.error('Error creating course:', error);
-    return res.status(500).json({ error: 'Failed to create course' });
+    return res.status(500).json({ message: 'Failed to create course' });
   }
 }
 
-/**
- * Update an existing course
- */
 export async function httpUpdateCourse(req, res) {
   try {
     const { id } = req.params;
-    const { title, description, instructorId } =
-      req.body;
+    const { title, description, lecturerId } = req.body;
+
+    if (!title || !description || !lecturerId) {
+      return res
+        .status(400)
+        .json({
+          message: 'Course title, description, or lecturer ID are required',
+        });
+    }
 
     // Check if course exists
     const course = await getCourseById(id);
     if (!course) {
-      return res.status(404).json({ error: 'Course not found' });
-    }
-
-    // Check if user is the admin or instructor
-    if (course.adminId !== req.user.id && req.user.role.name !== 'ADMIN') {
-      return res
-        .status(403)
-        .json({ error: 'You are not authorized to update this course' });
+      return res.status(404).json({ message: 'Course not found' });
     }
 
     const courseData = {
       title,
       description,
-      instructorId,
+      lecturerId,
     };
 
     const updatedCourse = await updateCourse(id, courseData);
     return res.status(200).json(updatedCourse);
   } catch (error) {
     console.error('Error updating course:', error);
-    return res.status(500).json({ error: 'Failed to update course' });
+    return res.status(500).json({ message: 'Failed to update course' });
   }
 }
 
-/**
- * Delete a course
- */
 export async function httpDeleteCourse(req, res) {
   try {
     const { id } = req.params;
-
-    // Check if course exists
-    const course = await getCourseById(id);
-    if (!course) {
-      return res.status(404).json({ error: 'Course not found' });
-    }
-
-    // Check if user is the admin
-    if (course.adminId !== req.user.id && req.user.role.name !== 'ADMIN') {
-      return res
-        .status(403)
-        .json({ error: 'You are not authorized to delete this course' });
-    }
 
     await deleteCourse(id);
     return res.status(200).json({ message: 'Course deleted successfully' });
   } catch (error) {
     console.error('Error deleting course:', error);
-    return res.status(500).json({ error: 'Failed to delete course' });
+    return res.status(500).json({ message: 'Failed to delete course' });
   }
 }
 
-/**
- * Enroll a student in a course
- */
 export async function httpEnrollInCourse(req, res) {
   try {
     const { id } = req.params;
@@ -138,7 +145,7 @@ export async function httpEnrollInCourse(req, res) {
     // Check if course exists
     const course = await getCourseById(id);
     if (!course) {
-      return res.status(404).json({ error: 'Course not found' });
+      return res.status(404).json({ message: 'Course not found' });
     }
 
     // Enroll the student
@@ -149,63 +156,25 @@ export async function httpEnrollInCourse(req, res) {
     });
   } catch (error) {
     console.error('Error enrolling in course:', error);
-
-    // Handle specific error case
-    if (error.message.includes('active course enrollment')) {
-      return res.status(400).json({
-        error:
-          'You cannot enroll in a new course while enrolled in an active course',
-      });
-    }
-    return res.status(500).json({ error: 'Failed to enroll in course' });
+    return res.status(500).json({ message: 'Failed to enroll in course' });
   }
 }
 
-/**
- * Check if user is enrolled in a course
- */
-
-export async function httpGetActiveEnrollments(req, res) {
-  try {
-    const userId = req.user.id;
-
-    const activeEnrollment = await checkActiveEnrollments(userId);
-    return res.status(200).json({
-      hasActive: activeEnrollment,
-    });
-  } catch (error) {
-    console.error('Error checking course enrollment:', error);
-    return res
-      .status(500)
-      .json({ error: 'Failed to check course enrollment status' });
-  }
-}
-/**
- * Get enrollments for a course
- */
 export async function httpGetCourseEnrollments(req, res) {
   try {
-    const { id } = req.params;
+    const { studentId } = req.params;
 
-    // Check if course exists
-    const course = await getCourseById(id);
-    if (!course) {
-      return res.status(404).json({ error: 'Course not found' });
+    const enrollments = await getCourseEnrollments(studentId);
+    if (!enrollments) {
+      return res
+        .status(404)
+        .json({ message: 'No enrollments found for this student' });
     }
-
-    // Check if user is authorized to view enrollments
-    if (course.adminId !== req.user.id && req.user.role.name !== 'ADMIN') {
-      return res.status(403).json({
-        error: "You are not authorized to view this course's enrollments",
-      });
-    }
-
-    const enrollments = await getCourseEnrollments(id);
     return res.status(200).json(enrollments);
   } catch (error) {
     console.error('Error getting course enrollments:', error);
     return res
       .status(500)
-      .json({ error: 'Failed to retrieve course enrollments' });
+      .json({ message: 'Failed to retrieve course enrollments' });
   }
 }

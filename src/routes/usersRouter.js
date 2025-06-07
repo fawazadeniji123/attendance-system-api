@@ -3,6 +3,9 @@ import passport from 'passport';
 import { checkPermission } from '../middleware/permissionMiddleware.js';
 import {
   httpGetAllUsers,
+  httpGetLecturerUsers,
+  httpGetStudentUsers,
+  httpGetRecentUsers,
   httpGetUserById,
   httpUpdateUser,
   httpDeleteUser,
@@ -15,8 +18,29 @@ const usersRouter = express.Router();
 usersRouter.get(
   '/',
   passport.authenticate('jwt', { session: false }),
-  checkPermission(['admin', 'lecturer']),
+  checkPermission(['admin']),
   httpGetAllUsers
+);
+
+usersRouter.get(
+  '/lecturers',
+  passport.authenticate('jwt', { session: false }),
+  checkPermission(['admin']),
+  httpGetLecturerUsers
+);
+
+usersRouter.get(
+  '/students',
+  passport.authenticate('jwt', { session: false }),
+  checkPermission(['admin']),
+  httpGetStudentUsers
+);
+
+usersRouter.get(
+  '/recent',
+  passport.authenticate('jwt', { session: false }),
+  checkPermission(['admin']),
+  httpGetRecentUsers
 );
 
 usersRouter.get(

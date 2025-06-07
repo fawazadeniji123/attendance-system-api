@@ -1,16 +1,50 @@
 import {
   getAllUsers,
+  getAllLecturers,
+  getAllStudents,
+  getRecentUsers,
   updateUser,
   deleteUser,
   findUserById,
   approveUser,
+  rejectUser,
 } from '../models/authModel.js';
 import cloudinary from '../config/cloudinary.js';
 import upload from '../config/multer.js';
 
-export async function httpGetAllUsers(req, res) {
+export async function httpGetAllUsers(_req, res) {
   try {
     const users = await getAllUsers();
+    res.json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+export async function httpGetLecturerUsers(_req, res) {
+  try {
+    const users = await getAllLecturers();
+    res.json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+export async function httpGetStudentUsers(_req, res) {
+  try {
+    const users = await getAllStudents();
+    res.json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+export async function httpGetRecentUsers(_req, res) {
+  try {
+    const users = await getRecentUsers();
     res.json(users);
   } catch (error) {
     console.error(error);

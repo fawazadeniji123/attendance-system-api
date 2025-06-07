@@ -101,8 +101,8 @@ export async function signIn(req, res) {
   const accessToken = generateAccessToken(req.user);
   const refreshToken = generateRefreshToken(req.user);
 
-  res.cookie('accessToken', accessToken, { httpOnly: true, secure: true });
-  res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
+  res.cookie('accessToken', accessToken, { httpOnly: true, secure: false });
+  res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: false });
 
   res.json({
     message: 'Login successful',
@@ -119,18 +119,13 @@ export async function refreshAccessToken(req, res) {
     if (err) return res.sendStatus(401);
 
     const accessToken = generateAccessToken(user);
-    res.cookie('accessToken', accessToken, { httpOnly: true, secure: true });
+    res.cookie('accessToken', accessToken, { httpOnly: true, secure: false });
     // res.json({ accessToken });
   });
 }
 
-export async function signOut(req, res) {
+export async function signOut(_req, res) {
   res.clearCookie('accessToken');
   res.clearCookie('refreshToken');
-  req.logout((err) => {
-    if (err) {
-      return res.status(500).json({ error: 'Failed to log out' });
-    }
-    res.json({ message: 'Logged out' });
-  });
+  res.json({ message: 'Logged out' });
 }

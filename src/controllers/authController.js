@@ -101,8 +101,8 @@ export async function signIn(req, res) {
   const accessToken = generateAccessToken(req.user);
   const refreshToken = generateRefreshToken(req.user);
 
-  res.cookie('accessToken', accessToken, { httpOnly: true, secure: false });
-  res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: false });
+  res.cookie('accessToken', accessToken, { httpOnly: false, secure: false });
+  res.cookie('refreshToken', refreshToken, { httpOnly: false, secure: false });
 
   res.json({
     message: 'Login successful',

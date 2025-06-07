@@ -83,8 +83,8 @@ export async function signUp(req, res) {
     const accessToken = generateAccessToken(newUser);
     const refreshToken = generateRefreshToken(newUser);
 
-    res.cookie('accessToken', accessToken, { httpOnly: true, secure: true });
-    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
+    res.cookie('accessToken', accessToken, { httpOnly: false, secure: false });
+    res.cookie('refreshToken', refreshToken, { httpOnly: false, secure: false });
 
     res.status(201).json({
       message: 'User created successfully',

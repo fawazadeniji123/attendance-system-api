@@ -3,6 +3,9 @@ import passport from 'passport';
 import { checkPermission } from '../middleware/permissionMiddleware.js';
 import {
   httpGetAllCourses,
+  httpGetCourseById,
+  httpGetCoursesByLecturerId,
+  httpGetAvailableCoursesByStudentId,
   httpCreateCourse,
   httpUpdateCourse,
   httpDeleteCourse,
@@ -14,50 +17,64 @@ const coursesRouter = express.Router();
 
 coursesRouter.get(
   '/',
-  // passport.authenticate('jwt', { session: false }),
-  // checkPermission('view:courses'),
+  passport.authenticate('jwt', { session: false }),
+  checkPermission('admin'),
   httpGetAllCourses
+);
+
+coursesRouter.get(
+  '/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkPermission(['admin', 'lecturer', 'student']),
+  httpGetCourseById
+);
+
+coursesRouter.get(
+  '/:lecturerId/lecturer',
+  passport.authenticate('jwt', { session: false }),
+  checkPermission(['admin', 'lecturer']),
+  httpGetCoursesByLecturerId
+);
+
+coursesRouter.get(
+  '/:studentId/available',
+  passport.authenticate('jwt', { session: false }),
+  checkPermission(['admin', 'lecturer', 'student']),
+  httpGetAvailableCoursesByStudentId
 );
 
 coursesRouter.post(
   '/',
   passport.authenticate('jwt', { session: false }),
-  checkPermission('create:courses'),
+  checkPermission('admin'),
   httpCreateCourse
 );
 
 coursesRouter.put(
   '/:id',
   passport.authenticate('jwt', { session: false }),
-  checkPermission('edit:courses'),
+  checkPermission('admin'),
   httpUpdateCourse
 );
 
 coursesRouter.delete(
   '/:id',
   passport.authenticate('jwt', { session: false }),
-  checkPermission('delete:courses'),
+  checkPermission('admin'),
   httpDeleteCourse
-);
-
-coursesRouter.post(
-  '/',
-  passport.authenticate('jwt', { session: false }),
-  checkPermission('create:courses'),
-  httpCreateCourse
 );
 
 coursesRouter.post(
   '/:id/enroll',
   passport.authenticate('jwt', { session: false }),
-  checkPermission('enroll:courses'),
+  checkPermission('student'),
   httpEnrollInCourse
 );
 
 coursesRouter.get(
-  '/:id/enrollments',
+  '/:studentId/enrollments',
   passport.authenticate('jwt', { session: false }),
-  // checkPermission('manage:enrollments'),
+  checkPermission(['admin', 'lecturer', 'student']),
   httpGetCourseEnrollments
 );
 

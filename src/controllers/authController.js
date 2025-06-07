@@ -119,7 +119,7 @@ export async function refreshAccessToken(req, res) {
     if (err) return res.sendStatus(401);
 
     const accessToken = generateAccessToken(user);
-    res.cookie('accessToken', accessToken, { httpOnly: true, secure: false });
+    res.cookie('accessToken', accessToken, { httpOnly: false, secure: false });
     // res.json({ accessToken });
   });
 }

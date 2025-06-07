@@ -44,14 +44,14 @@ usersRouter.post(
   httpUploadAvatar
 );
 
-usersRouter.put(
+usersRouter.patch(
   '/:id/approve',
   passport.authenticate('jwt', { session: false }),
   checkPermission('admin'),
   httpApproveUser
 );
 
-usersRouter.put(
+usersRouter.patch(
   '/:id/reject',
   passport.authenticate('jwt', { session: false }),
   checkPermission('admin'),

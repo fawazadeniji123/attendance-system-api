@@ -3,7 +3,7 @@ import { createUser, findUserByEmail, findUserByMatricNumber } from '../models/a
 import { config as env } from '../config/env.js';
 
 function generateAccessToken(user) {
-  return jwt.sign({ userId: user.id }, env.ACCESS_TOKEN_SECRET, {
+  return jwt.sign({ userId: user.id, role: user.role }, env.ACCESS_TOKEN_SECRET, {
     expiresIn: '15m',
   });
 }

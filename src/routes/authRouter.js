@@ -13,12 +13,26 @@ authRouter.post('/sign-up', signUp);
 
 authRouter.post(
   '/sign-in',
-  passport.authenticate('local', {
-    failureMessage: true,
-    session: false,
-  }),
+  (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+      if (err) return next(err);
+  
+      if (!user) {
+        return res
+          .status(401)
+          .json({
+            success: false,
+            message: info?.message || 'Authentication failed',
+          });
+      }
+  
+      req.user = user;
+      next();
+    })(req, res, next);
+  },
   signIn
 );
+
 
 authRouter.post('/token', refreshAccessToken);
 

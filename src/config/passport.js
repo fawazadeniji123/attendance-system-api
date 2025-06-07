@@ -14,14 +14,14 @@ const localStrategy = new LocalStrategy(
     try {
       let user = await findUserWithPassword(email);
       if (!user)
-        return done(null, false, { error: 'Incorrect email or password.' });
+        return done(null, false, { message: 'Incorrect email or password.' });
 
       if (!user.isApproved)
-        return done(null, false, { error: 'User is not approved.' });
+        return done(null, false, { message: 'User is not approved.' });
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid)
-        return done(null, false, { error: 'Incorrect email or password.' });
+        return done(null, false, { message: 'Incorrect email or password.' });
 
       // Remove password from user object before returning
       user = {
@@ -59,7 +59,7 @@ const jwtStrategy = new JwtStrategy(jwtOptions, async (jwtPayload, done) => {
   try {
     const user = await findUserById(jwtPayload.userId);
     if (!user) {
-      return done(null, false, { error: 'User not found' });
+      return done(null, false, { message: 'User not found' });
     }
     return done(null, user);
   } catch (error) {

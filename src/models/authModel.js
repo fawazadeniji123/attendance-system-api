@@ -50,6 +50,29 @@ export async function findUserByEmail(email) {
   });
 }
 
+export async function findStudentWithUser(matricNumber) {
+  return prisma.student.findUnique({
+    where: { matricNumber },
+    include: { user: true },
+    omit: {
+      user: { password: true },
+    },
+  });
+}
+
+export async function findUserByMatricNumber(matricNumber) {
+  return await prisma.user.findFirst({
+    where: { student: { matricNumber } },
+    omit: {
+      password: true,
+    },
+    include: {
+      student: true,
+      lecturer: true,
+    },
+  });
+}
+
 export async function findUserById(id) {
   return await prisma.user.findUnique({
     where: { id },

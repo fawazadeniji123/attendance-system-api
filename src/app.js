@@ -42,6 +42,6 @@ app.get('/', (_req, res) => {
   res.send('Welcome to the Attendance System API');
 });
 
-app.use(errorHandler);
+// app.use(errorHandler);
 
 export default app;

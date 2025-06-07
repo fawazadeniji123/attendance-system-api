@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { createUser, findUserByEmail } from '../models/authModel.js';
+import { createUser, findUserByEmail, findUserByMatricNumber } from '../models/authModel.js';
 import { config as env } from '../config/env.js';
 
 function generateAccessToken(user) {
@@ -27,16 +27,20 @@ export async function signUp(req, res) {
   } = req.body;
 
   // If student data is provided, include it in the user creation
-  const studentData = role === 'STUDENT'
-    ? {
-        matricNumber,
-        faceEncoding: faceEncoding || [],
-        pictureIds: pictureIds || [],
-        courseIds: courseIds || [],
-      }
-    : undefined;
+  const studentData =
+    role.toUpperCase() === 'STUDENT'
+      ? {
+          matricNumber,
+          faceEncoding: faceEncoding || [],
+          pictureIds: pictureIds || [],
+          courseIds: courseIds || [],
+        }
+      : undefined;
   // If lecturer data is provided, include it in the user creation
-  const lecturerData = role === 'LECTURER' ? { courseIds: courseIds || [] } : undefined;
+  const lecturerData =
+    role.toUpperCase() === 'LECTURER'
+      ? { courseIds: courseIds || [] }
+      : undefined;
 
   const userData = {
     name,
@@ -54,14 +58,23 @@ export async function signUp(req, res) {
         .json({ error: 'Please provide all required fields' });
     }
 
-    if (role == "STUDENT" && !matricNumber) {
-      return res.status(400).json({ error: 'Matric number is required for students' });
+    if (role == 'STUDENT' && !matricNumber) {
+      return res
+        .status(400)
+        .json({ error: 'Matric number is required for students' });
     }
 
     // Check if email is already in use
     const existingEmail = await findUserByEmail(email);
     if (existingEmail) {
       return res.status(409).json({ error: 'Email is already in use' });
+    }
+
+    if (role == 'STUDENT') {
+      const existingMatric = await findUserByMatricNumber(matricNumber);
+      if (existingMatric) {
+        return res.status(409).json({ error: 'Matric number is already in use' });
+      }
     }
 
     // If not in use, proceed with user creation

@@ -42,9 +42,8 @@ model Student {
   pictureIds     String[]    
   user           User         @relation(fields: [userId], references: [id])
   userId         String       @unique @db.ObjectId
-  courses        Course[]     @relation(fields: [courseIds], references: [id])
-  courseIds      String[]     @db.ObjectId
   attendance     Attendance[]
+  enrollments    Enrollment[] @relation("StudentEnrollments")
 }
 
 model Lecturer {
@@ -63,11 +62,20 @@ model Course {
   name        String
   code        String       @unique
   description String?
-  students    Student[]    @relation(fields: [studentIds], references: [id])
-  studentIds  String[]     @db.ObjectId
   Lecturer    Lecturer?    @relation(fields: [lecturerId], references: [id])
   lecturerId  String?      @db.ObjectId
   attendance  Attendance[]
+  enrollments Enrollment[] @relation("CourseEnrollments")
+}
+
+model Enrollment {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  student    Student  @relation("StudentEnrollments", fields: [studentId], references: [id])
+  studentId  String   @db.ObjectId
+  course     Course   @relation("CourseEnrollments", fields: [courseId], references: [id])
+  courseId   String   @db.ObjectId
 }
 
 model Attendance {

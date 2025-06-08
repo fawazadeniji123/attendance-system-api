@@ -57,6 +57,9 @@ const jwtOptions = {
 
 const jwtStrategy = new JwtStrategy(jwtOptions, async (jwtPayload, done) => {
   try {
+    if (!jwtPayload || !jwtPayload.userId) {
+      return done(null, false, { message: 'Invalid token payload' });
+    }
     const user = await findUserById(jwtPayload.userId);
     if (!user) {
       return done(null, false, { message: 'User not found' });

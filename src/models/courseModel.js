@@ -43,31 +43,20 @@ export async function deleteCourse(id) {
   });
 }
 
-export async function getCourseEnrollments(userId) {
-  return await prisma.course.findMany({
-    where: {
-      some: {
-        userId,
-      },
+export async function getStudentEnrollments(studentId) {
+  return await prisma.enrollment.findMany({
+    where: { studentId },
+    select: {
+      course: true,
     },
   });
 }
 
-export async function enrollStudent(courseId, userId) {
-  return await prisma.course.create({
+export async function enrollStudent(courseId, studentId) {
+  return await prisma.enrollment.create({
     data: {
-      courseId,
-      userId,
-    },
-    include: {
-      course: true,
-      user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-        },
-      },
+      student: { connect: { id: studentId } },
+      course: { connect: { id: courseId } },
     },
   });
 }
@@ -75,14 +64,33 @@ export async function enrollStudent(courseId, userId) {
 export async function getCourseEnrollments(courseId) {
   return await prisma.enrollment.findMany({
     where: { courseId },
-    include: {
+    select: {
       student: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
+        include: {
+          user: true, // include user info (e.g. name, email) if needed
         },
       },
     },
+  });
+}
+
+
+export async function getAvailableCoursesByStudentId(studentId) {
+  return await prisma.course.findMany({
+    where: {
+      NOT: {
+        enrollments: {
+          some: {
+            studentId: studentId,
+          },
+        },
+      },
+    },
+  });
+}
+
+export async function getCoursesByLecturerId(lecturerId) {
+  return await prisma.course.findMany({
+    where: { lecturerId },
   });
 }

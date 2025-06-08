@@ -121,8 +121,7 @@ export async function refreshAccessToken(req, res) {
 
   jwt.verify(refreshToken, env.REFRESH_TOKEN_SECRET, (err, user) => {
     if (err) return res.sendStatus(401);
-
-    const accessToken = generateAccessToken(user);
+    const accessToken = generateAccessToken({ id: user.userId, role: user.role });
     res.cookie('accessToken', accessToken, { httpOnly: false, secure: false });
     res.sendStatus(200);
   });

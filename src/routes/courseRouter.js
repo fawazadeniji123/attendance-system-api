@@ -11,6 +11,7 @@ import {
   httpDeleteCourse,
   httpEnrollInCourse,
   httpGetCourseEnrollments,
+  httpGetStudentEnrollments,
 } from '../controllers/courseController.js';
 
 const coursesRouter = express.Router();
@@ -74,7 +75,14 @@ coursesRouter.post(
 coursesRouter.get(
   '/:studentId/enrollments',
   passport.authenticate('jwt', { session: false }),
-  checkPermission(['admin', 'lecturer', 'student']),
+  checkPermission(['admin', 'student']),
+  httpGetStudentEnrollments
+);
+
+coursesRouter.get(
+  '/:courseId/enrollments',
+  passport.authenticate('jwt', { session: false }),
+  checkPermission(['admin', 'lecturer']),
   httpGetCourseEnrollments
 );
 

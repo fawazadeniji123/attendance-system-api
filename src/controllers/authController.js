@@ -9,9 +9,13 @@ function generateAccessToken(user) {
 }
 
 function generateRefreshToken(user) {
-  return jwt.sign({ userId: user.id }, env.REFRESH_TOKEN_SECRET, {
-    expiresIn: '30d',
-  });
+  return jwt.sign(
+    { userId: user.id, role: user.role },
+    env.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: '30d',
+    }
+  );
 }
 
 export async function signUp(req, res) {
@@ -112,7 +116,6 @@ export async function signIn(req, res) {
 
 export async function refreshAccessToken(req, res) {
   const { refreshToken } = req.cookies;
-  console.log('Refresh Token:', refreshToken);
 
   if (!refreshToken) return res.sendStatus(401);
 

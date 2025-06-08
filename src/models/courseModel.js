@@ -3,6 +3,34 @@ import { prisma } from '../config/prismaClient.js';
 export async function getAllCourses(filter = {}) {
   return await prisma.course.findMany({
     where: filter,
+    include: {
+      lecturer: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      }, 
+      enrollments: {
+        include: {
+          student: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   });
 }
 
@@ -10,7 +38,32 @@ export async function getCourseById(id) {
   return await prisma.course.findUnique({
     where: { id },
     include: {
-      lecturer: true,
+      lecturer: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      }, 
+      enrollments: {
+        include: {
+          student: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 }
@@ -31,9 +84,24 @@ export async function createCourse(courseData) {
 }
 
 export async function updateCourse(id, courseData) {
+  let data = {};
+  if (courseData.title) {
+    data.title = courseData.title;
+  }
+  if (courseData.description) {
+    data.description = courseData.description;
+  }
+  if (courseData.code) {
+    data.code = courseData.code;
+  }
+  if (courseData.lecturerId) {
+    data.lecturer = {
+      connect: { id: courseData.lecturerId },
+    };
+  }
   return await prisma.course.update({
     where: { id },
-    data: courseData,
+    data,
   });
 }
 
@@ -67,7 +135,13 @@ export async function getCourseEnrollments(courseId) {
     select: {
       student: {
         include: {
-          user: true, // include user info (e.g. name, email) if needed
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          }, 
         },
       },
     },

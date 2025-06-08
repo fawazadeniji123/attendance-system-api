@@ -112,6 +112,7 @@ export async function signIn(req, res) {
 
 export async function refreshAccessToken(req, res) {
   const { refreshToken } = req.cookies;
+  console.log('Refresh Token:', refreshToken);
 
   if (!refreshToken) return res.sendStatus(401);
 
@@ -120,7 +121,7 @@ export async function refreshAccessToken(req, res) {
 
     const accessToken = generateAccessToken(user);
     res.cookie('accessToken', accessToken, { httpOnly: false, secure: false });
-    // res.json({ accessToken });
+    res.sendStatus(200);
   });
 }
 

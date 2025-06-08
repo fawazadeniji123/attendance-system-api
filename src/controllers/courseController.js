@@ -72,7 +72,7 @@ export async function httpCreateCourse(req, res) {
   try {
     const { title, code, description, lecturerId } = req.body;
 
-    if (!title && !code) {
+    if (!title || !code) {
       return res
         .status(400)
         .json({ message: 'Course title and code are required' });

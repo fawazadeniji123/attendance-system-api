@@ -8,6 +8,7 @@ import {
   deleteCourse,
   enrollStudent,
   getCourseEnrollments,
+  getStudentEnrollments,
 } from '../models/courseModel.js';
 import { findUserById } from '../models/authModel.js';
 
@@ -160,17 +161,36 @@ export async function httpEnrollInCourse(req, res) {
   }
 }
 
-export async function httpGetCourseEnrollments(req, res) {
+export async function httpGetStudentEnrollments(req, res) {
   try {
     const { studentId } = req.params;
 
-    const enrollments = await getCourseEnrollments(studentId);
-    if (!enrollments) {
+    const courses = await getStudentEnrollments(studentId);
+    if (!courses) {
       return res
         .status(404)
-        .json({ message: 'No enrollments found for this student' });
+        .json({ message: 'No courses found for this student' });
     }
-    return res.status(200).json(enrollments);
+    return res.status(200).json(courses);
+  } catch (error) {
+    console.error('Error getting student enrollments:', error);
+    return res
+      .status(500)
+      .json({ message: 'Failed to retrieve student enrollments' });
+  }
+}
+
+export async function httpGetCourseEnrollments(req, res) {
+  try {
+    const { courseId } = req.params;
+
+    const students = await getCourseEnrollments(courseId);
+    if (!students) {
+      return res
+        .status(404)
+        .json({ message: 'No students found for this course' });
+    }
+    return res.status(200).json(students);
   } catch (error) {
     console.error('Error getting course enrollments:', error);
     return res

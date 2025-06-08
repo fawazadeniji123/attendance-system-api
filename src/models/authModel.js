@@ -14,7 +14,6 @@ export async function createUser(data) {
             create: {
               matricNumber: data.studentData.matricNumber,
               faceEncoding: JSON.stringify(data.studentData.faceEncoding),
-              courseIds: data.studentData.courseIds,
               pictureIds: data.studentData.pictureIds,
             },
           }
@@ -22,7 +21,9 @@ export async function createUser(data) {
       lecturer: data?.lecturerData
         ? {
             create: {
-              courseIds: data.lecturerData.courseIds,
+              courses: {
+                connect: data.lecturerData.courseIds,
+              },
             },
           }
         : undefined,

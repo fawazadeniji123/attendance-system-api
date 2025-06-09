@@ -9,7 +9,7 @@ import {
   httpGetUserById,
   httpUpdateUser,
   httpDeleteUser,
-  httpUploadAvatar,
+  httpAddFaceEncoding,
   httpApproveUser,
 } from '../controllers/usersController.js';
 
@@ -63,9 +63,9 @@ usersRouter.delete(
 );
 
 usersRouter.post(
-  '/:id/upload-avatar',
+  '/face-encoding',
   passport.authenticate('jwt', { session: false }),
-  httpUploadAvatar
+  httpAddFaceEncoding
 );
 
 usersRouter.patch(

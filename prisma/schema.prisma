@@ -76,18 +76,20 @@ model Enrollment {
   studentId  String   @db.ObjectId
   course     Course   @relation("CourseEnrollments", fields: [courseId], references: [id], onDelete: Cascade)
   courseId   String   @db.ObjectId
+  @@unique([studentId, courseId]) // Ensure a student can enroll in a course only once
 }
 
 model Attendance {
   id        String           @id @default(auto()) @map("_id") @db.ObjectId
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
-  timestamp DateTime         @default(now())
+  timestamp DateTime         
   status    AttendanceStatus @default(ABSENT)
   student   Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
   studentId String           @db.ObjectId
   course    Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId  String           @db.ObjectId
+  @@index([studentId, courseId])
 }
 
 enum Role {

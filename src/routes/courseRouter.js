@@ -10,6 +10,7 @@ import {
   httpUpdateCourse,
   httpDeleteCourse,
   httpEnrollInCourse,
+  httpUnenrollInCourse,
   httpGetCourseEnrollments,
   httpGetStudentEnrollments,
 } from '../controllers/courseController.js';
@@ -70,6 +71,13 @@ coursesRouter.post(
   passport.authenticate('jwt', { session: false }),
   checkPermission('student'),
   httpEnrollInCourse
+);
+
+coursesRouter.post(
+  '/:id/unenroll',
+  passport.authenticate('jwt', { session: false }),
+  checkPermission('student'),
+  httpUnenrollInCourse
 );
 
 coursesRouter.get(

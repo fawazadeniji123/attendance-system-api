@@ -9,8 +9,6 @@ import {
   approveUser,
   rejectUser,
 } from '../models/authModel.js';
-import cloudinary from '../config/cloudinary.js';
-import upload from '../config/multer.js';
 
 export async function httpGetAllUsers(_req, res) {
   try {
@@ -104,43 +102,24 @@ export async function httpDeleteUser(req, res) {
   }
 }
 
-export const httpUploadAvatar = [
-  upload.single('profilePicture'),
-  async (req, res) => {
-    const { id } = req.params;
+export async function httpAddFaceEncoding(req, res) {
+  const user = req.user;
+  const { faceEncoding } = req.body;
 
-    try {
-      // Check if file exists
-      if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded' });
-      }
-      const user = await findUserById(id);
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
+  if (!faceEncoding) {
+    return res.status(400).json({ error: 'Face encoding is required' });
+  }
 
-      const profilePicture = req.file.buffer.toString('base64');
-      const uploadedImage = await cloudinary.uploader.upload(
-        `data:image/jpeg;base64,${profilePicture}`,
-        {
-          upload_preset: 'attendance-system',
-        }
-      );
-
-      const updatedUser = await updateUser(id, {
-        profilePicture: uploadedImage.secure_url,
-      });
-
-      res.json({
-        message: 'Avatar uploaded successfully',
-        user: updatedUser,
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  },
-];
+  try {
+    await updateUser(user.id, { studentData: { faceEncoding: JSON.stringify(faceEncoding) } });
+    res.json({
+      message: 'Face encoding added successfully',
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
 
 export async function httpApproveUser(req, res) {
   const { id } = req.params;

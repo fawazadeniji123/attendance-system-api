@@ -14,7 +14,7 @@ export async function getAllCourses(filter = {}) {
             },
           },
         },
-      }, 
+      },
       enrollments: {
         include: {
           student: {
@@ -48,7 +48,7 @@ export async function getCourseById(id) {
             },
           },
         },
-      }, 
+      },
       enrollments: {
         include: {
           student: {
@@ -115,7 +115,21 @@ export async function getStudentEnrollments(studentId) {
   return await prisma.enrollment.findMany({
     where: { studentId },
     select: {
-      course: true,
+      course: {
+        include: {
+          lecturer: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 }
@@ -125,6 +139,17 @@ export async function enrollStudent(courseId, studentId) {
     data: {
       student: { connect: { id: studentId } },
       course: { connect: { id: courseId } },
+    },
+  });
+}
+
+export async function unenrollStudent(courseId, studentId) {
+  return await prisma.enrollment.delete({
+    where: {
+      courseId_studentId: {
+        courseId,
+        studentId,
+      },
     },
   });
 }
@@ -141,13 +166,12 @@ export async function getCourseEnrollments(courseId) {
               name: true,
               email: true,
             },
-          }, 
+          },
         },
       },
     },
   });
 }
-
 
 export async function getAvailableCoursesByStudentId(studentId) {
   return await prisma.course.findMany({
@@ -160,11 +184,37 @@ export async function getAvailableCoursesByStudentId(studentId) {
         },
       },
     },
+    include: {
+      lecturer: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      },
+    },
   });
 }
 
 export async function getCoursesByLecturerId(lecturerId) {
   return await prisma.course.findMany({
     where: { lecturerId },
+    include: {
+      lecturer: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      },
+    },
   });
 }

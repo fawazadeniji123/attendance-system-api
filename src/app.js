@@ -12,7 +12,7 @@ import authRouter from './routes/authRouter.js';
 import usersRouter from './routes/usersRouter.js';
 import courseRoutes from './routes/courseRouter.js';
 import attendanceRoutes from './routes/attendanceRouter.js';
-// import profileRouter from './routes/profileRouter';
+import profileRouter from './routes/profileRouter.js';
 
 const app = express();
 
@@ -29,7 +29,7 @@ app.use('/auth', authRouter);
 app.use('/courses', courseRoutes);
 app.use('/attendance', attendanceRoutes);
 app.use('/users', usersRouter);
-// app.use('/api/profile', profileRouter);
+app.use('/profile', profileRouter);
 
 app.get('/health-check', (_req, res) => {
   res.json({

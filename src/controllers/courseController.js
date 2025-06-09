@@ -11,7 +11,6 @@ import {
   getCourseEnrollments,
   getStudentEnrollments,
 } from '../models/courseModel.js';
-import { findUserById } from '../models/authModel.js';
 
 export async function httpGetAllCourses(req, res) {
   try {

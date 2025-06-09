@@ -7,6 +7,7 @@ import {
   updateCourse,
   deleteCourse,
   enrollStudent,
+  unenrollStudent,
   getCourseEnrollments,
   getStudentEnrollments,
 } from '../models/courseModel.js';
@@ -141,7 +142,7 @@ export async function httpDeleteCourse(req, res) {
 export async function httpEnrollInCourse(req, res) {
   try {
     const { id } = req.params;
-    const userId = req.user.id;
+    const studentId = req.user.student.id;
 
     // Check if course exists
     const course = await getCourseById(id);
@@ -150,7 +151,7 @@ export async function httpEnrollInCourse(req, res) {
     }
 
     // Enroll the student
-    const enrollment = await enrollStudent(id, userId);
+    const enrollment = await enrollStudent(id, studentId);
     return res.status(201).json({
       message: 'Successfully enrolled in course',
       enrollment,
@@ -158,6 +159,28 @@ export async function httpEnrollInCourse(req, res) {
   } catch (error) {
     console.error('Error enrolling in course:', error);
     return res.status(500).json({ message: 'Failed to enroll in course' });
+  }
+}
+
+export async function httpUnenrollInCourse(req, res) {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    // Check if course exists
+    const course = await getCourseById(id);
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // Unenroll the student
+    await unenrollStudent(id, userId);
+    return res.status(200).json({
+      message: 'Successfully unenrolled from course',
+    });
+  } catch (error) {
+    console.error('Error unenrolling from course:', error);
+    return res.status(500).json({ message: 'Failed to unenroll from course' });
   }
 }
 

@@ -2,6 +2,7 @@ import {
   getAllUsers,
   getAllLecturers,
   getAllStudents,
+  getStudentEncodings,
   getRecentUsers,
   updateUser,
   deleteUser,
@@ -34,6 +35,30 @@ export async function httpGetStudentUsers(_req, res) {
   try {
     const users = await getAllStudents();
     res.json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+export async function httpGetStudentEncodings(_req, res) {
+  try {
+    const data = await getStudentEncodings();
+    const result = data.reduce(
+      (acc, item) => {
+        const encodings = JSON.parse(item.faceEncoding);
+    
+        for (const encoding of encodings) {
+          acc.encodings.push(encoding);
+          acc.ids.push(item.id);
+        }
+    
+        return acc;
+      },
+      { encodings: [], ids: [] }
+    );
+
+    res.json(result);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });

@@ -5,6 +5,7 @@ import {
   httpGetAllUsers,
   httpGetLecturerUsers,
   httpGetStudentUsers,
+  httpGetStudentEncodings,
   httpGetRecentUsers,
   httpGetUserById,
   httpUpdateUser,
@@ -34,6 +35,13 @@ usersRouter.get(
   passport.authenticate('jwt', { session: false }),
   checkPermission(['admin']),
   httpGetStudentUsers
+);
+
+usersRouter.get(
+  '/students/encodings',
+  // passport.authenticate('jwt', { session: false }),
+  // checkPermission(['admin']),
+  httpGetStudentEncodings
 );
 
 usersRouter.get(

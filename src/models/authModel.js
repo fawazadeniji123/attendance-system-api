@@ -124,6 +124,16 @@ export async function getAllStudents() {
   });
 }
 
+export async function getStudentEncodings() {
+  return await prisma.student.findMany({
+    where: {},
+    select: {
+      id: true,
+      faceEncoding: true,
+    },
+  });
+}
+
 export async function getAllLecturers() {
   return await prisma.user.findMany({
     where: { role: 'LECTURER' },
@@ -163,7 +173,6 @@ export async function updateUser(id, data) {
     },
   });
 }
-
 
 export async function deleteUser(id) {
   const user = await prisma.user.findUnique({

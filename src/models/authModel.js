@@ -137,31 +137,33 @@ export async function getAllLecturers() {
 }
 
 export async function updateUser(id, data) {
+  const { studentData, lecturerData, ...rest } = data;
+
   return await prisma.user.update({
     where: { id },
     data: {
-      ...data,
-      student: data.studentData
+      ...rest,
+      student: studentData
         ? {
             update: {
-              ...data.studentData,
+              ...studentData,
             },
           }
         : undefined,
-      lecturer: data.lecturerData
+      lecturer: lecturerData
         ? {
             update: {
-              ...data.lecturerData,
+              ...lecturerData,
             },
           }
         : undefined,
     },
-
     omit: {
       password: true,
     },
   });
 }
+
 
 export async function deleteUser(id) {
   const user = await prisma.user.findUnique({

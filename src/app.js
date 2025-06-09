@@ -5,7 +5,6 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 
 import { corsOptions } from './middleware/corsOptions.js';
-import { errorHandler } from './middleware/errorHandler.js';
 
 import passport from './config/passport.js';
 
@@ -41,7 +40,5 @@ app.get('/health-check', (_req, res) => {
 app.get('/', (_req, res) => {
   res.send('Welcome to the Attendance System API');
 });
-
-// app.use(errorHandler);
 
 export default app;

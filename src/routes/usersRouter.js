@@ -65,6 +65,7 @@ usersRouter.delete(
 usersRouter.post(
   '/face-encoding',
   passport.authenticate('jwt', { session: false }),
+  checkPermission('student'),
   httpAddFaceEncoding
 );
 

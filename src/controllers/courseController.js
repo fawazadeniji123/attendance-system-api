@@ -165,7 +165,7 @@ export async function httpEnrollInCourse(req, res) {
 export async function httpUnenrollInCourse(req, res) {
   try {
     const { id } = req.params;
-    const userId = req.user.id;
+    const studentId = req.user.student.id;
 
     // Check if course exists
     const course = await getCourseById(id);
@@ -174,7 +174,7 @@ export async function httpUnenrollInCourse(req, res) {
     }
 
     // Unenroll the student
-    await unenrollStudent(id, userId);
+    await unenrollStudent(id, studentId);
     return res.status(200).json({
       message: 'Successfully unenrolled from course',
     });

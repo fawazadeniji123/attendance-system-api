@@ -4,6 +4,7 @@ import {
   updateAttendanceRecord,
   deleteAttendanceRecord,
 } from '../models/attendanceModel.js';
+import { checkStudentEnrollment } from '../models/courseModel.js';
 
 export async function getAttendance(req, res) {
   const { courseId } = req.params;
@@ -31,11 +32,23 @@ export async function getAttendance(req, res) {
 
 export async function createAttendance(req, res) {
   const { courseId, studentId, date, status } = req.body;
+  if (!courseId || !studentId || !date || !status) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+  if (isNaN(Date.parse(date))) {
+    return res.status(400).json({ message: 'Invalid date format' });
+  }
+  const parsedDate = new Date(date);
   try {
+    // check if student is enrolled in the course
+    const isEnrolled = await checkStudentEnrollment(courseId, studentId);
+    if (!isEnrolled) {
+      return res.status(403).json({ message: 'Student is not enrolled in this course' });
+    }
     const newAttendance = await createAttendanceRecord({
       courseId,
       studentId,
-      date,
+      date: parsedDate,
       status,
     });
     if (!newAttendance) {

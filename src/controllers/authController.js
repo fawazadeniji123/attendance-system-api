@@ -1,11 +1,19 @@
 import jwt from 'jsonwebtoken';
-import { createUser, findUserByEmail, findUserByMatricNumber } from '../models/authModel.js';
+import {
+  createUser,
+  findUserByEmail,
+  findUserByMatricNumber,
+} from '../models/authModel.js';
 import { config as env } from '../config/env.js';
 
 function generateAccessToken(user) {
-  return jwt.sign({ userId: user.id, role: user.role }, env.ACCESS_TOKEN_SECRET, {
-    expiresIn: '15m',
-  });
+  return jwt.sign(
+    { userId: user.id, role: user.role },
+    env.ACCESS_TOKEN_SECRET,
+    {
+      expiresIn: '15m',
+    }
+  );
 }
 
 function generateRefreshToken(user) {
@@ -77,7 +85,9 @@ export async function signUp(req, res) {
     if (role == 'STUDENT') {
       const existingMatric = await findUserByMatricNumber(matricNumber);
       if (existingMatric) {
-        return res.status(409).json({ error: 'Matric number is already in use' });
+        return res
+          .status(409)
+          .json({ error: 'Matric number is already in use' });
       }
     }
 
@@ -87,8 +97,16 @@ export async function signUp(req, res) {
     const accessToken = generateAccessToken(newUser);
     const refreshToken = generateRefreshToken(newUser);
 
-    res.cookie('accessToken', accessToken, { httpOnly: false, secure: false });
-    res.cookie('refreshToken', refreshToken, { httpOnly: false, secure: false });
+    res.cookie('accessToken', accessToken, {
+      httpOnly: false,
+      secure: true,
+      sameSite: 'None',
+    });
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: false,
+      secure: true,
+      sameSite: 'None',
+    });
 
     res.status(201).json({
       message: 'User created successfully',
@@ -105,8 +123,16 @@ export async function signIn(req, res) {
   const accessToken = generateAccessToken(req.user);
   const refreshToken = generateRefreshToken(req.user);
 
-  res.cookie('accessToken', accessToken, { httpOnly: false, secure: false });
-  res.cookie('refreshToken', refreshToken, { httpOnly: false, secure: false });
+  res.cookie('accessToken', accessToken, {
+    httpOnly: false,
+    secure: true,
+    sameSite: 'None',
+  });
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: false,
+    secure: true,
+    sameSite: 'None',
+  });
 
   res.json({
     message: 'Login successful',
@@ -121,8 +147,15 @@ export async function refreshAccessToken(req, res) {
 
   jwt.verify(refreshToken, env.REFRESH_TOKEN_SECRET, (err, user) => {
     if (err) return res.sendStatus(401);
-    const accessToken = generateAccessToken({ id: user.userId, role: user.role });
-    res.cookie('accessToken', accessToken, { httpOnly: false, secure: false });
+    const accessToken = generateAccessToken({
+      id: user.userId,
+      role: user.role,
+    });
+    res.cookie('accessToken', accessToken, {
+      httpOnly: false,
+      secure: true,
+      sameSite: 'None',
+    });
     res.sendStatus(200);
   });
 }

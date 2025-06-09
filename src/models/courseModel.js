@@ -134,6 +134,18 @@ export async function getStudentEnrollments(studentId) {
   });
 }
 
+export async function checkStudentEnrollment(courseId, studentId) {
+  const enrollment = await prisma.enrollment.findUnique({
+    where: {
+      studentId_courseId: {
+        studentId,
+        courseId,
+      },
+    },
+  });
+  return !!enrollment;
+}
+
 export async function enrollStudent(courseId, studentId) {
   return await prisma.enrollment.create({
     data: {

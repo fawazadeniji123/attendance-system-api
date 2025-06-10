@@ -19,14 +19,12 @@ attendanceRouter.post(
   '/',
   passport.authenticate('jwt', { session: false }),
   checkPermission('admin'),
-  validateAttendance,
   createAttendance
 );
 attendanceRouter.put(
   '/:attendanceId',
   passport.authenticate('jwt', { session: false }),
   checkPermission('admin'),
-  validateAttendance,
   updateAttendance
 );
 attendanceRouter.delete(

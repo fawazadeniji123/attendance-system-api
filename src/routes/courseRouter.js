@@ -88,7 +88,7 @@ coursesRouter.get(
 );
 
 coursesRouter.get(
-  '/:courseId/enrollments',
+  '/:courseId/enrollments/course',
   passport.authenticate('jwt', { session: false }),
   checkPermission(['admin', 'lecturer']),
   httpGetCourseEnrollments

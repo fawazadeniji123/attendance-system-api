@@ -16,9 +16,6 @@ const localStrategy = new LocalStrategy(
       if (!user)
         return done(null, false, { message: 'Incorrect email or password.' });
 
-      if (!user.isApproved)
-        return done(null, false, { message: 'User is not approved. Contact the Admin.' });
-
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid)
         return done(null, false, { message: 'Incorrect email or password.' });
